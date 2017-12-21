@@ -1,5 +1,11 @@
-# getssl
+# This is a work in progress. Please do not use until stable. 
+
+# getsslD
 Obtain SSL certificates from the letsencrypt.org ACME server.  Suitable for automating the process on remote servers.
+
+Runs in a Docker conatainer.
+Based on the work of getssl by srvrco https://github.com/srvrco/getssl
+and acme.sh by Neil Pang http://Neilpang/acme.sh
 
 ## Features
 * **Bash** - It runs on virtually all unix machines, including BSD, most Linux distributions, MAC OSX.
