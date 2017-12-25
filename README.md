@@ -1,17 +1,24 @@
+
+# This is a work in progress. Please do not use until stable. 
+
 # getsslD
 Obtain SSL certificates from the letsencrypt.org ACME server.  Suitable for automating the process on remote servers.
 
+Runs in a Docker conatainer.
+Based on the work of getssl by srvrco https://github.com/srvrco/getssl
+and acme.sh by Neil Pang http://Neilpang/acme.sh
+
 ## Features
-* **Bash** - It runs on virtually all unix machines, including BSD, most Linux distributions, MAC OSX.
-* **Get certificates for remote servers** - The tokens used to provide validation of domain ownership, and the certificates themselves can be automatically copied to remote servers (via ssh, sftp or ftp for tokens). The script doesn't need to run on the server itself. This can be useful if you don't have access to run such scripts on the server itself, e.g. if it's a shared server.
+* **Bash** - Easy to read and follow script in shell language.
+* **Docker** - Alpine-based Docker image for contanierization.
+* **Get certificates for remote servers** - The tokens used to provide validation of domain ownership, and the certificates themselves can be automatically copied to remote servers (via ssh, sftp or ftp for tokens). The container doesn't need to run on the target server itself. This can be useful if you don't have access to run such scripts on the server itself, e.g. if it's a shared server.
 * **Runs as a daily cron** - so certificates will be automatically renewed when required.
 * **Automatic certificate renewals**
 * **Checks certificates are correctly loaded**. After installation of a new certificate it will test the port specified ( see [Server-Types](#server-types) for options ) that the certificate is actually being used correctly.
-* **Automatically updates** - The script can automatically update itself with bug fixes etc if required.
-* **Extensively configurable** - With a simple configuration file for each certificate it is possible to configure it exactly for your needs, whether a simple single domain or multiple domains across multiple servers on the same certificate.
+* **Extensively configurable** - With a simple configuration file for each certificate it is possible to configure it exactly for your needs, whether a simple single domain or multiple domains across multiple servers on the same certificate. Can be configured with `docker-compose` environment files for automated operation.
 * **Supports http and dns challenges** - Full ACME implementation
-* **Simple and easy to use**
-* **Detailed debug info** - Whilst it shouldn't be needed, detailed debug information is available.
+* **Simple and easy to use** - Fully documented code, and logs all actions.
+* **Detailed operational info** - Detailed script log information is displayed on STDOUT and STDERR.
 * **Reload services** - After a new certificate is obtained then the relevant services (e.g. apache/nginx/postfix) can be reloaded.
 
 ## Installation
@@ -53,6 +60,28 @@ Options:
   -U, --nocheck      Do not check if a more recent version is available
   -w working_dir "Working directory"
 ```
+
+## Server-Types
+opensslD has built-in support for getting the certificate from a number of SSL services
+that are available in getsslD to check if the certificate is installed correctly.
+
+| Server-Type      | Port | Extra        |
+|------------------|------|--------------|
+| https            | 443  |              |
+| ftp              | 21   | FTP Explicit |
+| ftpi             | 990  | FTP Implicit |
+| imap             | 143  | StartTLS     |
+| imaps            | 993  |              |
+| pop3             | 110  | StartTLS     |
+| pop3s            | 995  |              |
+| smtp             | 25   | StartTLS     |
+| smtps_deprecated | 465  |              |
+| smtps            | 587  | StartTLS     |
+| smtp_submission  | 587  | StartTLS     |
+| xmpp             | 5222 | StartTLS     |
+| xmpps            | 5269 |              |
+| ldaps            | 636  |              |
+| port number      |      |              |
 
 ## Getting started
 
@@ -224,29 +253,6 @@ CA_CERT_LOCATION="/etc/ssl/example.com.bundle"
 RELOAD_CMD="service apache2 reload"
 
 ```
-
-## Server-Types
-OpenSSL has built-in support for getting the certificate from a number of SSL services
-these are available in getssl to check if the certificate is installed correctly
-
-| Server-Type      | Port | Extra        |
-|------------------|------|--------------|
-| https            | 443  |              |
-| ftp              | 21   | FTP Explicit |
-| ftpi             | 990  | FTP Implicit |
-| imap             | 143  | StartTLS     |
-| imaps            | 993  |              |
-| pop3             | 110  | StartTLS     |
-| pop3s            | 995  |              |
-| smtp             | 25   | StartTLS     |
-| smtps_deprecated | 465  |              |
-| smtps            | 587  | StartTLS     |
-| smtp_submission  | 587  | StartTLS     |
-| xmpp             | 5222 | StartTLS     |
-| xmpps            | 5269 |              |
-| ldaps            | 636  |              |
-| port number      |      |              |
-
 
 ## Revoke a certificate
 
