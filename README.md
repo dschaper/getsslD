@@ -1,3 +1,4 @@
+
 # This is a work in progress. Please do not use until stable. 
 
 # getsslD
@@ -19,6 +20,21 @@ and acme.sh by Neil Pang http://Neilpang/acme.sh
 * **Simple and easy to use** - Fully documented code, and logs all actions.
 * **Detailed operational info** - Detailed script log information is displayed on STDOUT and STDERR.
 * **Reload services** - After a new certificate is obtained then the relevant services (e.g. apache/nginx/postfix) can be reloaded.
+
+## Installation
+Since the script is only one file, you can use the following command for a quick installation of GetSSL only:
+```
+curl --silent https://raw.githubusercontent.com/dschaper/getsslD/master/getsslD > getsslD ; chmod 700 getssl
+```
+This will copy the getssl Bash script to the current location and change the permissions to make it executable for you.
+
+For a more comprehensive installation (e.g. install also helper scripts) use the provided Makefile with each release tarball. Use the `install` target.
+
+You'll find the latest version in the git repository:
+
+```
+git clone https://github.com/dschaper/getsslD.git
+```
 
 ## Overview
 
