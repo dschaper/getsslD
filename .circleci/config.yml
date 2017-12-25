@@ -6,8 +6,6 @@ jobs:
       # Shellcheck is from base image koalaman/shellcheck-alpine:v0.4.7
       # bats-core is from GitHub repo, see Dockerfile.dev in project root for build environment
       - image: djschaper/circleci:1.2-alpine3.7scb
-    environment:
-      - CIRCLE_BRANCH: integration/circleci
     shell: /bin/ash
     working_directory: /srv/getsslD
     steps:
