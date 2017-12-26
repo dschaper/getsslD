@@ -3,7 +3,7 @@
 # getsslD - Obtain SSL certificates from the letsencrypt.org ACME server.
 #           Runs in a Docker conatainer.
 #           Based on the work of getssl by srvrco https://github.com/srvrco/getssl
-#           and acme.sh by Neil Pang http://Neilpang/acme.sh
+#           and acme.sh by Neil Pang http://github.com/Neilpang/acme.sh
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 # shellcheck disable=SC2169
 # shellcheck shell=dash
 
-PROGNAME=getsslD
+PROGNAME=$(basename "${0##/*}")
 VERSION="0.2 commit 9444e69"
 
 # Default values, accepts environment variables if set, otherwise default are used
@@ -27,8 +27,6 @@ WORKING_DIR=${WORKING_DIR:="/ssl"}
 ACCOUNT_KEY_LOCATION=${ACCOUNT_KEY_LOCATION:="$WORKING_DIR/account.key"}
 ACCOUNT_KEY_LENGTH=${ACCOUNT_KEY_LENGTH:="4096"}
 ACCOUNT_KEY_TYPE=${ACCOUNT_KEY_TYPE:="rsa"}
-
-
 
 #####
 # Functions
@@ -58,8 +56,6 @@ create_key() {
 
   # Valid Lets Encrypt RSA key lengths 2048-8192
   # Valid Lets Encrypt ECC key lengths 256, 384, 521
-
-
 
   if [[ "$key_len" -ge "2048" ]] && [[ "$key_len" -le "8192" ]] && [[ "$key_type" == "rsa" ]]; then
     valid_key_type="RSA"
@@ -106,33 +102,58 @@ create_key() {
 #}
 
 help_message_top() {
-
   cat <<- _EOL_
-  Usage: $PROGNAME [option] [COMMAND] [ARGS...]
+  Usage: $PROGNAME [option] COMMAND
   Obtain SSL certificates from the letsencrypt.org ACME server.
 
   Commands:
-    account        Create or modify Lets Encrypt account.
+      account         Create or modify Lets Encrypt account.
 
   Options to long options apply to short options also.
   Options:
-    -v, --version  Display $PROGNAME version information.
+      -v, --version   Display $PROGNAME version information.
 
-	_EOL_
-	return 0
+_EOL_
+  return 0
 }
 
 help_message_account() {
-
   cat <<- _EOL_
-  Usage: $PROGNAME account [COMMAND] [ARGS...]
+  Usage: $PROGNAME account COMMAND
   Manage Lets Encrypt account
 
   Commands:
-     key           Manage Lets Encrypt account key.
+      key             Manage Lets Encrypt account key.
 
-	_EOL_
-	return 0
+_EOL_
+  return 0
+}
+
+help_message_account_key() {
+  cat <<- _EOL_
+  Usage: $PROGNAME account key COMMAND
+  Manage Lets Encrypt account key
+
+  Commands:
+      create          Create Lets Encrypt account key.
+
+_EOL_
+  return 0
+}
+
+help_message_account_key_create() {
+  cat <<- _EOL_
+  Usage: $PROGNAME account key create [OPTION]
+  Manage Lets Encrypt account key
+
+  If no options specified, defaults to 4096 bit RSA algorithm.
+  Can be overridden with variables sourced from configuration file.
+  Options:
+      rsa [LENGTH]    Use RSA algorithm. Defaults to 4096 bit if not specified.
+      ecc [LENGTH]    Use ECC algorithm. Defaults to 384 bit if not specified.
+
+_EOL_
+  return 0
 }
 
 prep_workdir() { ## DAN FIX THIS
@@ -157,7 +178,7 @@ read_config() {
     # shellcheck source=/dev/null
     . "$WORKING_DIR/getsslD.cfg"
   else
-    printf '!! Unable to find %s/getsslD.cfg. Please generate or mount directory with file location.' "$WORKING_DIR" 1>&2
+    printf '!! Unable to find %s/getsslD.cfg. Please generate or mount directory with file location.\n' "$WORKING_DIR" 1>&2
     exit 1
   fi
 }
@@ -165,17 +186,21 @@ read_config() {
 arg_parser() {
   # Check CLI arguments and process
 
-  while [[ "$#" -gt 0 ]]
+  while :
   do
-    case $1
+    case "$1"
       in
       -h | --help | "")
         help_message_top
         exit 0
         ;;
-      account)
+      -v | --version)
+        printf '%s v%s\n' "$PROGNAME" "$VERSION"
+        exit 0
+        ;;
+      a | account)
         shift
-        read_config
+        # read_config
         prep_workdir
         case "$1"
         in # account subcommand
@@ -183,7 +208,7 @@ arg_parser() {
             help_message_account
             exit 0
             ;;
-          key)
+          k | key)
             shift
             case "$1"
               in # key subcommand
@@ -191,7 +216,11 @@ arg_parser() {
                 help_message_account_key
                 exit 0
                 ;;
-              create)
+              c | create)
+                if [[ -s $ACCOUNT_KEY_LOCATION ]]; then
+                  printf 'Key exists at %s, not generating new key.\n' $ACCOUNT_KEY_LOCATION 1>&2
+                  exit 2
+                fi
                 shift
                 case "$1"
                 in # create subcommand
@@ -199,29 +228,20 @@ arg_parser() {
                     help_message_account_key_create
                     exit 0
                     ;;
-                  r | rsa)
-                    shift
+                  r | rsa | RSA)
                     key_type="rsa"
-                    key_length="$1"
-                    printf 'Creating %s bit RSA account key...' "$key_length"
-                    create_key "$ACCOUNT_KEY_LOCATION" "$key_length" "$key_type"
-                    shift
-                    exit $?
+                    key_length="$2"
+                    key_length=${key_length:="4096"}
                     ;;
-                  e | ecc)
-                    shift
+                  e | ecc | ECC)
                     key_type="ecc"
-                    key_length="$1"
-                    printf 'Creating %s bit ECC account key...' "$key_length"
-                    create_key "$ACCOUNT_KEY_LOCATION" "$key_length" "$key_type"
-                    shift
+                    key_length="$2"
+                    key_length=${key_length:="384"}
                     ;;
                   "")
+                    printf 'Using default values for key type and key length.\n'
                     key_type=$ACCOUNT_KEY_TYPE
                     key_length=$ACCOUNT_KEY_LENGTH
-                    printf 'Creating %s bit %s account key with default values...' "$key_length" "$key_type"
-                    create_key "$ACCOUNT_KEY_LOCATION" "$key_length" "$key_type"
-                    exit $?
                     ;;
                   *)
                     printf 'Invalid command\n\n'
@@ -229,23 +249,26 @@ arg_parser() {
                     exit 1
                     ;;
                 esac # End create subcommand
+                printf 'Creating %s bit %s account key...' "$key_length" "$key_type"
+                create_key "$ACCOUNT_KEY_LOCATION" "$key_length" "$key_type"
+                exit $?
                 ;;
               *)
-                printf 'Invalid command\n\n'
+                printf 'Invalid command - %s\n\n' "$*"
                 help_message_account_key
                 exit 1
                 ;;
             esac # End key subcommands
             ;;
           *)
-            printf 'Invalid command\n\n'
+            printf 'Invalid command - %s\n\n' "$*"
             help_message_account
             exit 1
             ;;
         esac # End account subcommands
         ;;
       *)
-        printf 'Invalid command\n\n'
+        printf 'Invalid command - %s\n\n' "$*"
         help_message_top
         exit 1
         ;;
@@ -259,16 +282,8 @@ arg_parser() {
 
 main() {
 
-if [[ "$1" == "-v" ]] || [[ "$1" == "--version" ]]; then
-  printf '%s v%s\n' "$PROGNAME" "$VERSION"
-  exit 0
-fi
-
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]] || [[ "$1" == "" ]]; then
-  help_message_top
-  exit 0
-fi
-
 arg_parser "$@"
 
 }
+
+main "$@"
