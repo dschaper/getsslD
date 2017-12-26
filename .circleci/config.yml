@@ -16,10 +16,9 @@ jobs:
             curl \
             drill \
             openssl
-      - checkout
-      - run:
-          name: Copy getsslD to path'd directory
-          command: cp /srv/getsslD/getsslD /bin/
+      - checkout:
+          post:
+            - mv /srv/getsslD/getsslD /bin/getsslD
       - run:
           name: Test initial script run
           command: getsslD --help
