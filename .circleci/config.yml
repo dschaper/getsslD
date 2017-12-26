@@ -19,7 +19,7 @@ jobs:
             curl \
             drill \
             openssl
-      - checkout:
+      - checkout
       - run:
           name: Test initial script run
           command: getsslD --help
