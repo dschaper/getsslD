@@ -5,10 +5,13 @@ jobs:
       # This image is based on Alpine 3.7, with Shellcheck v0.4.7 and bats-core commit b1da565 (2017-11-13)
       # Shellcheck is from base image koalaman/shellcheck-alpine:v0.4.7
       # bats-core is from GitHub repo, see Dockerfile.dev in project root for build environment
-      - image: djschaper/circleci:1.2-alpine3.7scb
+      - image: djschaper/circleci:1.3-alpine3.7scb
     shell: /bin/ash
     working_directory: /srv/getsslD
     steps:
+      - run:
+          name: Export path for script
+          command: echo 'export PATH=/srv/getsslD:$PATH' >> $BASH_ENV
       - run:
           name: Install Run Dependencies
           command: |
@@ -19,13 +22,13 @@ jobs:
       - checkout
       - run:
           name: Copy getsslD to path'd directory
-          command: cp /srv/getsslD/getsslD /bin/
+          command: mv /srv/getsslD/getsslD /bin/
       - run:
           name: Test initial script run
           command: getsslD --help
       - run:
           name: Shellcheck getsslD
-          command: shellcheck /srv/getsslD/getsslD
+          command: shellcheck /bin/getsslD
       - run:
           name: Check for bats executable
           command: bats -h
