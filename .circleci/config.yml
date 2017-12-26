@@ -21,11 +21,14 @@ jobs:
             openssl
       - checkout
       - run:
+          name: Copy getsslD to path'd directory
+          command: mv /srv/getsslD/getsslD /bin/
+      - run:
           name: Test initial script run
           command: getsslD --help
       - run:
           name: Shellcheck getsslD
-          command: shellcheck /srv/getsslD/getsslD
+          command: shellcheck /bin/getsslD
       - run:
           name: Check for bats executable
           command: bats -h
