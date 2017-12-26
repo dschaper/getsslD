@@ -9,6 +9,7 @@ jobs:
     shell: /bin/ash
     working_directory: /srv/getsslD
     steps:
+      - run: echo 'export PATH=/srv/getsslD:$PATH' >> $BASH_ENV
       - run:
           name: Install Run Dependencies
           command: |
@@ -17,8 +18,6 @@ jobs:
             drill \
             openssl
       - checkout:
-          post:
-            - mv /srv/getsslD/getsslD /bin/getsslD
       - run:
           name: Test initial script run
           command: getsslD --help
