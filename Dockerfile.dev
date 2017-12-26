@@ -8,6 +8,8 @@ RUN apk --no-cache --virtual .run-depends add \
     bash \
     curl \
     drill \
+    git \
+    openssh \
     openssl
 
 COPY .bats-core/ /opt/bats/
