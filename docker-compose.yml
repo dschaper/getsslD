@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    image: djschaper/circleci:1.4-alpine3.7scb
     working_dir: /opt/src/getssld
     volumes:
       - .:/opt/src/getssld
