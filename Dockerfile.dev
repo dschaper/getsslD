@@ -1,6 +1,4 @@
-FROM koalaman/shellcheck-alpine:v0.4.7
-
-ENV PATH=/bin:$PATH
+FROM djschaper/shellcheck-bats-alpine3.7:stable
 
 WORKDIR /ssl
 
@@ -12,8 +10,4 @@ RUN apk --no-cache --virtual .run-depends add \
     openssh \
     openssl
 
-COPY .bats-core/ /opt/bats/
-
-RUN ln -s /opt/bats/libexec/bats /usr/sbin/bats
-
-ENTRYPOINT ["/bin/ash"]
+ENTRYPOINT ["/bin/sh"]

@@ -5,7 +5,8 @@ jobs:
       # This image is based on Alpine 3.7, with Shellcheck v0.4.7 and bats-core commit b1da565 (2017-11-13)
       # Shellcheck is from base image koalaman/shellcheck-alpine:v0.4.7
       # bats-core is from GitHub repo, see Dockerfile.dev in project root for build environment
-      - image: djschaper/circleci:1.3-alpine3.7scb
+      # Built with mutistage builds.
+      - image: djschaper/circleci:1.4-alpine3.7scb
     shell: /bin/ash
     working_directory: /srv/getsslD
     steps:
